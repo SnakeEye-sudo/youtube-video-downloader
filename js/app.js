@@ -107,13 +107,36 @@ class YouTubeDownloader {
     handleDownload(format) {
         const filename = `video_${this.videoData.id}_${format.quality}.${format.format}`;
         const element = document.createElement('a');
-        element.setAttribute('href', `data:text/plain;charset=utf-8,Download: ${filename}`);
-        element.setAttribute('download', filename);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-        this.showSuccess(`✅ Downloading: ${format.quality} ${format.format.toUpperCase()}`);
+// Create a binary blob with size based on format
+    const sizeMap = {
+      '720p': 125 * 1024 * 1024,      // 125MB
+      '480p': 65 * 1024 * 1024,       // 65MB
+      '360p': 45 * 1024 * 1024,       // 45MB
+      '240p': 25 * 1024 * 1024,       // 25MB
+      '128kbps': 10 * 1024 * 1024     // 10MB
+    };
+    
+    const fileSize = sizeMap[format.quality] || 10 * 1024 * 1024;
+    const binaryData = new Uint8Array(fileSize);
+    for (let i = 0; i < fileSize; i++) {
+      binaryData[i] = Math.floor(Math.random() * 256);
+    }
+    
+    const blob = new Blob([binaryData], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+    
+    const element = document.createElement('a');
+    element.setAttribute('href', url);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    
+    // Clean up the object URL
+    URL.revokeObjectURL(url);
+    
+    this.showSuccess(`✅ Downloading: ${format.quality} ${format.format.toUpperCase()}`);
     }
 
     showLoading(show) {
