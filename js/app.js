@@ -1,8 +1,7 @@
 // YouTube Video Downloader App - Real Backend Integration
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/api/download'
-  : 'https://youtube-video-downloader-api.vercel.app/api/download';
-
+  : 'https://yt-dl-api-prod-2025.vercel.app/api/download';
 class YouTubeDownloader {
   constructor() {
     this.videoUrl = '';
