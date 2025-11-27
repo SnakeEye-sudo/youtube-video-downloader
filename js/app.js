@@ -105,7 +105,15 @@ class YouTubeDownloader {
     }
 
     handleDownload(format) {
-        this.showSuccess(`Download initiated: ${format.quality} ${format.format.toUpperCase()}`);
+        const filename = `video_${this.videoData.id}_${format.quality}.${format.format}`;
+        const element = document.createElement('a');
+        element.setAttribute('href', `data:text/plain;charset=utf-8,Download: ${filename}`);
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        this.showSuccess(`✅ Downloading: ${format.quality} ${format.format.toUpperCase()}`);
     }
 
     showLoading(show) {
