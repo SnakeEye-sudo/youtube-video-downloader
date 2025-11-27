@@ -1,168 +1,173 @@
-// YouTube Video Downloader App
+// YouTube Video Downloader App - Real Backend Integration
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api/download'
+  : 'https://youtube-video-downloader-api.vercel.app/api/download';
+
 class YouTubeDownloader {
-    constructor() {
-        this.videoUrl = '';
-        this.videoData = null;
-        this.initializeElements();
-        this.attachEventListeners();
-    }
+  constructor() {
+    this.videoUrl = '';
+    this.videoData = null;
+    this.initializeElements();
+    this.attachEventListeners();
+  }
 
-    initializeElements() {
-        this.urlInput = document.getElementById('videoUrl');
-        this.fetchBtn = document.getElementById('fetchBtn');
-        this.videoInfo = document.getElementById('videoInfo');
-        this.qualitySection = document.getElementById('qualitySection');
-        this.qualityGrid = document.getElementById('qualityGrid');
-        this.loadingSpinner = document.getElementById('loadingSpinner');
-        this.errorMessage = document.getElementById('errorMessage');
-        this.successMessage = document.getElementById('successMessage');
-    }
+  initializeElements() {
+    this.urlInput = document.getElementById('videoUrl');
+    this.fetchBtn = document.getElementById('fetchBtn');
+    this.videoInfo = document.getElementById('videoInfo');
+    this.qualitySection = document.getElementById('qualitySection');
+    this.qualityGrid = document.getElementById('qualityGrid');
+    this.loadingSpinner = document.getElementById('loadingSpinner');
+    this.errorMessage = document.getElementById('errorMessage');
+    this.successMessage = document.getElementById('successMessage');
+  }
 
-    attachEventListeners() {
-        this.fetchBtn.addEventListener('click', () => this.handleFetchVideo());
-        this.urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleFetchVideo();
-        });
-    }
+  attachEventListeners() {
+    this.fetchBtn.addEventListener('click', () => this.handleFetchVideo());
+    this.urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.handleFetchVideo();
+    });
+  }
 
-    handleFetchVideo() {
-        const url = this.urlInput.value.trim();
-        if (!url) {
-            this.showError('Please enter a YouTube URL');
-            return;
+  handleFetchVideo() {
+    const url = this.urlInput.value.trim();
+    if (!url) {
+      this.showError('Please enter a YouTube URL');
+      return;
+    }
+    if (!this.isValidYouTubeUrl(url)) {
+      this.showError('Please enter a valid YouTube URL');
+      return;
+    }
+    this.fetchVideoData(url);
+  }
+
+  isValidYouTubeUrl(url) {
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)\//;
+    return youtubeRegex.test(url);
+  }
+
+  fetchVideoData(url) {
+    this.showLoading(true);
+    this.clearMessages();
+
+    fetch(`${API_URL}?url=${encodeURIComponent(url)}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        this.videoData = {
+          id: data.id || data.title.substring(0, 10),
+          title: data.title || 'Unknown Video',
+          channel: data.author || 'Unknown Channel',
+          duration: data.duration ? this.formatDuration(data.duration) : 'Unknown',
+          thumbnail: data.thumbnail || 'https://via.placeholder.com/320x180?text=No+Thumbnail',
+          formats: (data.formats || []).map(f => ({
+            quality: f.quality_label || f.format_name || 'Unknown',
+            format: f.ext || 'mp4',
+            size: this.formatFileSize(f.filesize),
+            url: f.url,
+            filesize: f.filesize
+          }))
+        };
+
+        if (this.videoData.formats.length === 0) {
+          this.showError('No download formats available for this video');
+          this.showLoading(false);
+          return;
         }
-        if (!this.isValidYouTubeUrl(url)) {
-            this.showError('Please enter a valid YouTube URL');
-            return;
-        }
-        this.fetchVideoData(url);
-    }
 
-    isValidYouTubeUrl(url) {
-        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)\//;
-        return youtubeRegex.test(url);
-    }
+        this.displayVideoInfo();
+        this.displayQualityOptions();
+        this.showSuccess('✅ Video loaded! Select quality and download.');
+        this.showLoading(false);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        this.showError('Failed to fetch video: ' + error.message);
+        this.showLoading(false);
+      });
+  }
 
-    fetchVideoData(url) {
-        this.showLoading(true);
-        this.clearMessages();
-        setTimeout(() => {
-            try {
-                const videoId = this.extractVideoId(url);
-                this.videoData = {
-                    id: videoId,
-                    title: 'Sample Video',
-                    channel: 'Sample Channel',
-                    duration: '10:30',
-                    thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-                    formats: [
-                        { quality: '720p', format: 'mp4', size: '125MB' },
-                        { quality: '480p', format: 'mp4', size: '65MB' },
-                        { quality: '360p', format: 'mp4', size: '45MB' },
-                        { quality: '128kbps', format: 'mp3', size: '10MB' }
-                    ]
-                };
-                this.displayVideoInfo();
-                this.displayQualityOptions();
-                this.showSuccess('Video loaded! Select quality and download.');
-            } catch (error) {
-                this.showError('Failed to fetch video.');
-            }
-            this.showLoading(false);
-        }, 1000);
-    }
+  formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hours > 0) return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
 
-    extractVideoId(url) {
-        const patterns = [
-            /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
-            /youtube\.com\/embed\/([^&\n?#]+)/
-        ];
-        for (let pattern of patterns) {
-            const match = url.match(pattern);
-            if (match && match[1]) return match[1];
-        }
-        return 'dQw4w9WgXcQ';
-    }
+  formatFileSize(bytes) {
+    if (!bytes) return 'Unknown';
+    const mb = bytes / (1024 * 1024);
+    return mb.toFixed(1) + 'MB';
+  }
 
-    displayVideoInfo() {
-        document.getElementById('videoTitle').textContent = this.videoData.title;
-        document.getElementById('videoChannel').textContent = `Channel: ${this.videoData.channel}`;
-        document.getElementById('videoDuration').textContent = `Duration: ${this.videoData.duration}`;
-        document.getElementById('videoThumbnail').src = this.videoData.thumbnail;
-        this.videoInfo.classList.remove('hidden');
-    }
+  displayVideoInfo() {
+    document.getElementById('videoTitle').textContent = this.videoData.title;
+    document.getElementById('videoChannel').textContent = `Channel: ${this.videoData.channel}`;
+    document.getElementById('videoDuration').textContent = `Duration: ${this.videoData.duration}`;
+    document.getElementById('videoThumbnail').src = this.videoData.thumbnail;
+    this.videoInfo.classList.remove('hidden');
+  }
 
-    displayQualityOptions() {
-        this.qualityGrid.innerHTML = '';
-        this.videoData.formats.forEach((format) => {
-            const card = document.createElement('div');
-            card.className = 'quality-card';
-            card.innerHTML = `<div class=\"quality-label\">${format.quality}</div><div class=\"quality-format\">${format.format.toUpperCase()}</div><div class=\"quality-format\" style=\"font-size:0.8em;color:#999;\">${format.size}</div>`;
-            card.addEventListener('click', () => this.handleDownload(format));
-            this.qualityGrid.appendChild(card);
-        });
-        this.qualitySection.classList.remove('hidden');
-    }
+  displayQualityOptions() {
+    this.qualityGrid.innerHTML = '';
+    this.videoData.formats.forEach((format) => {
+      const card = document.createElement('div');
+      card.className = 'quality-card';
+      card.innerHTML = `
+        <div class="quality-label">${format.quality}</div>
+        <div class="quality-format">${format.format.toUpperCase()}</div>
+        <div class="quality-format" style="font-size:0.8em;color:#999;">${format.size}</div>
+      `;
+      card.addEventListener('click', () => this.handleDownload(format));
+      this.qualityGrid.appendChild(card);
+    });
+    this.qualitySection.classList.remove('hidden');
+  }
 
-    handleDownload(format) {
-        const filename = `video_${this.videoData.id}_${format.quality}.${format.format}`;
-// Create a binary blob with size based on format
-    const sizeMap = {
-      '720p': 125 * 1024 * 1024,      // 125MB
-      '480p': 65 * 1024 * 1024,       // 65MB
-      '360p': 45 * 1024 * 1024,       // 45MB
-      '240p': 25 * 1024 * 1024,       // 25MB
-      '128kbps': 10 * 1024 * 1024     // 10MB
-    };
-    
-    const fileSize = sizeMap[format.quality] || 10 * 1024 * 1024;
-    const binaryData = new Uint8Array(fileSize);
-    for (let i = 0; i < fileSize; i++) {
-      binaryData[i] = Math.floor(Math.random() * 256);
+  handleDownload(format) {
+    if (!format.url) {
+      this.showError('Download URL not available for this format');
+      return;
     }
     
-    const blob = new Blob([binaryData], { type: 'video/mp4' });
-    const url = URL.createObjectURL(blob);
-    
-    const element = document.createElement('a');
-    element.setAttribute('href', url);
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    
-    // Clean up the object URL
-    URL.revokeObjectURL(url);
-    
-    this.showSuccess(`✅ Downloading: ${format.quality} ${format.format.toUpperCase()}`);
+    try {
+      // Open download in new tab
+      window.open(format.url, '_blank');
+      this.showSuccess(`✅ Download started: ${format.quality} ${format.format.toUpperCase()}`);
+    } catch (error) {
+      this.showError('Failed to start download: ' + error.message);
     }
+  }
 
-    showLoading(show) {
-        this.loadingSpinner.classList.toggle('hidden', !show);
-    }
+  showLoading(show) {
+    this.loadingSpinner.classList.toggle('hidden', !show);
+  }
 
-    showError(message) {
-        this.errorMessage.textContent = '❌ ' + message;
-        this.errorMessage.classList.remove('hidden');
-    }
+  showError(message) {
+    this.errorMessage.textContent = '❌ ' + message;
+    this.errorMessage.classList.remove('hidden');
+  }
 
-    showSuccess(message) {
-        this.successMessage.textContent = '✅ ' + message;
-        this.successMessage.classList.remove('hidden');
-    }
+  showSuccess(message) {
+    this.successMessage.textContent = message;
+    this.successMessage.classList.remove('hidden');
+  }
 
-    clearMessages() {
-        this.errorMessage.classList.add('hidden');
-        this.successMessage.classList.add('hidden');
-    }
+  clearMessages() {
+    this.errorMessage.classList.add('hidden');
+    this.successMessage.classList.add('hidden');
+  }
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new YouTubeDownloader());
+  document.addEventListener('DOMContentLoaded', () => new YouTubeDownloader());
 } else {
-    new YouTubeDownloader();
+  new YouTubeDownloader();
 }
 
-console.log('%cYouTube Video Downloader', 'color: #667eea; font-size: 20px;');
-console.log('%cReady to download!', 'color: #764ba2;');
+console.log('%cYouTube Video Downloader - Real Backend Edition', 'color: #667eea; font-size: 20px;');
+console.log('%cConnecting to: ' + API_URL, 'color: #764ba2;');
