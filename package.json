@@ -1,0 +1,32 @@
+{
+  "name": "youtube-video-downloader",
+  "version": "1.0.0",
+  "description": "A modern web application to download YouTube videos in multiple quality formats",
+  "main": "js/app.js",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "youtube",
+    "downloader",
+    "video",
+    "download",
+    "mp4",
+    "mp3",
+    "quality"
+  ],
+  "author": "SnakeEye (Er. Sangam Krishna)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnakeEye-sudo/youtube-video-downloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnakeEye-sudo/youtube-video-downloader/issues"
+  },
+  "homepage": "https://snakeeye-sudo.github.io/youtube-video-downloader",
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
