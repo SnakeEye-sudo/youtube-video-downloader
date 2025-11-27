@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader - Download Videos in HD Quality</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">📺</span>
+                    <span class="logo-text">YouTube Video Downloader</span>
+                </h1>
+                <p class="tagline">Download YouTube videos in multiple quality formats instantly</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="videoUrl" 
+                        class="url-input" 
+                        placeholder="Paste YouTube URL here..." 
+                        required
+                    >
+                    <button id="fetchBtn" class="fetch-button">Fetch Video</button>
+                </div>
+            </div>
+
+            <!-- Video Info Display -->
+            <div id="videoInfo" class="video-info hidden">
+                <div class="video-preview">
+                    <img id="videoThumbnail" src="" alt="Video Thumbnail" class="thumbnail">
+                </div>
+                <div class="video-details">
+                    <h2 id="videoTitle" class="video-title"></h2>
+                    <p id="videoChannel" class="video-channel"></p>
+                    <p id="videoDuration" class="video-duration"></p>
+                </div>
+            </div>
+
+            <!-- Quality Selection -->
+            <div id="qualitySection" class="quality-section hidden">
+                <h3>Select Quality & Format</h3>
+                <div class="quality-grid" id="qualityGrid"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingSpinner" class="loading-spinner hidden">
+                <div class="spinner"></div>
+                <p>Processing your video...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message hidden"></div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message hidden"></div>
+        </main>
+
+        <!-- Features Section -->
+        <section class="features">
+            <h2>Why Choose Us?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Lightning Fast</h3>
+                    <p>Download videos in seconds</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🎬</span>
+                    <h3>Multiple Formats</h3>
+                    <p>720p, 480p, 360p, MP3 & more</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔒</span>
+                    <h3>Secure & Private</h3>
+                    <p>No data collection or registration</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <h3>Works Everywhere</h3>
+                    <p>Desktop, tablet, and mobile friendly</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 YouTube Video Downloader. Built with ❤️ by SnakeEye</p>
+            <p class="disclaimer">This tool is for personal use only. Respect copyright laws.</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
