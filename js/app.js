@@ -106,7 +106,6 @@ class YouTubeDownloader {
 
     handleDownload(format) {
         const filename = `video_${this.videoData.id}_${format.quality}.${format.format}`;
-        const element = document.createElement('a');
 // Create a binary blob with size based on format
     const sizeMap = {
       '720p': 125 * 1024 * 1024,      // 125MB
