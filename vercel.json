@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm install",
+  "outputDirectory": "./",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "YOUTUBE_DL_API_KEY": "@youtube_dl_api_key"
+  }
+}
