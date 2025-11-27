@@ -1,0 +1,17 @@
+{
+  "name": "youtube-video-downloader-api",
+  "version": "1.0.0",
+  "description": "YouTube video downloader backend API",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^2.6.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["youtube", "downloader", "api"],
+  "author": "SnakeEye",
+  "license": "MIT"
+}
